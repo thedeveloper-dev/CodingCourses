@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodingCourses | Interactive Coding Quizzes</title>
+    <style>
+        :root {
+            --primary: #00ff9d;
+            --secondary: #00b8ff;
+            --dark: #0a192f;
+            --light: #ccd6f6;
+            --accent: #ff2d75;
+            --correct: #00ff9d;
+            --incorrect: #ff2d75;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Fira Code', monospace, sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(10, 25, 47, 0.95), rgba(10, 25, 47, 0.95)),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="0" y="10" font-family="monospace" font-size="8" fill="rgba(0, 255, 157, 0.05)">10101010 01010101 10101010 01010101 10101010 01010101 10101010 01010101 10101010 01010101 10101010 01010101 10101010 01010101 10101010 01010101</text></svg>');
+            z-index: -1;
+            background-size: 200px;
+        }
+        
+        header {
+            padding: 2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 255, 157, 0.2);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo i {
+            font-size: 1.5rem;
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+        }
+        
+        nav a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            font-size: 1.1rem;
+        }
+        
+        nav a:hover {
+            color: var(--primary);
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s;
+        }
+        
+        nav a:hover::after {
+            width: 100%;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 5rem 5%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1.1rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 255, 157, 0.2);
+        }
+        
+        .quiz-categories {
+            padding: 4rem 5%;
+            background-color: rgba(10, 25, 47, 0.7);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2rem;
+            color: var(--primary);
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            margin: 0.5rem auto 0;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .category-card {
+            background: rgba(21, 41, 75, 0.6);
+            border-radius: 8px;
+            padding: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0, 255, 157, 0.1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 157, 0.1);
+            border-color: rgba(0, 255, 157, 0.3);
+        }
+        
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 255, 157, 0.1), rgba(0, 184, 255, 0.1));
+            z-index: -1;
+        }
+        
+        .category-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .category-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+        
+        .category-card p {
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+        
+        .start-quiz {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .start-quiz:hover {
+            background-color: var(--primary);
+            color: var(--dark);
+        }
+        
+        /* Quiz Container Styles */
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(21, 41, 75, 0.8);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 157, 0.2);
+            display: none;
+        }
+        
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 255, 157, 0.2);
+        }
+        
+        .quiz-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin: 0;
+        }
+        
+        .quiz-progress {
+            font-size: 1rem;
+            color: var(--light);
+            opacity: 0.8;
+        }
+        
+        .question-container {
+            margin-bottom: 2rem;
+        }
+        
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .option {
+            padding: 1rem;
+            background: rgba(10, 25, 47, 0.6);
+            border: 1px solid rgba(0, 255, 157, 0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+        }
+        
+        .option:hover {
+            background: rgba(0, 255, 157, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .option.correct {
+            background: rgba(0, 255, 157, 0.2);
+            border-color: var(--correct);
+            color: var(--correct);
+        }
+        
+        .option.incorrect {
+            background: rgba(255, 45, 117, 0.2);
+            border-color: var(--incorrect);
+            color: var(--incorrect);
+        }
+        
+        .quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 255, 157, 0.2);
+        }
+        
+        .next-btn {
+            padding: 0.7rem 1.5rem;
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .next-btn:hover {
+            background: var(--secondary);
+        }
+        
+        .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .score-container {
+            font-size: 1.1rem;
+        }
+        
+        .score-container span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* Results Container */
+        .results-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(21, 41, 75, 0.8);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 157, 0.2);
+            text-align: center;
+            display: none;
+        }
+        
+        .results-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .final-score {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .final-score span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .restart-btn {
+            padding: 0.8rem 2rem;
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+        
+        .restart-btn:hover {
+            background: var(--secondary);
+        }
+        
+        /* About Section */
+        .about-section {
+            padding: 4rem 5%;
+            max-width: 900px;
+            margin: 0 auto;
+            display: none;
+        }
+        
+        .about-content {
+            background: rgba(21, 41, 75, 0.6);
+            border-radius: 10px;
+            padding: 2rem;
+            border: 1px solid rgba(0, 255, 157, 0.2);
+        }
+        
+        .about-content h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+        
+        .about-content p {
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .features-list {
+            margin: 2rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .features-list li {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .features-list li::marker {
+            color: var(--primary);
+        }
+        
+        .back-to-home {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 0.7rem 1.5rem;
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-to-home:hover {
+            background: var(--primary);
+            color: var(--dark);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 5%;
+            border-top: 1px solid rgba(0, 255, 157, 0.2);
+            margin-top: 3rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .copyright {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+        
+        /* Active states */
+        .active {
+            display: block !important;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.5rem 5%;
+            }
+            
+            nav ul {
+                gap: 1rem;
+            }
+            
+            .hero {
+                padding: 3rem 5%;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quiz-container, .results-container, .about-section {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .option {
+                padding: 0.8rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <a href="#" class="logo" id="home-link">
+            <i class="fas fa-code"></i>Coding<span>Courses</span>
+        </a>
+        <nav>
+            <ul>
+                <li><a href="#" id="nav-home">Home</a></li>
+                <li><a href="#quizzes" id="nav-quizzes">Quizzes</a></li>
+                <li><a href="#" id="nav-about">About</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="hero" id="home-section">
+            <h1>Master Coding Through Interactive Quizzes</h1>
+            <p>Challenge yourself with our extensive collection of coding quizzes. No lectures, just practical tests to sharpen your programming skills across multiple languages and technologies.</p>
+            <a href="#quizzes" class="cta-button" id="start-quizzing">Start Quizzing</a>
+        </section>
+        
+        <section class="quiz-categories" id="quizzes-section">
+            <h2 class="section-title">Quiz Categories</h2>
+            <div class="categories-grid">
+                <div class="category-card" data-quiz="javascript">
+                    <div class="category-icon">
+                        <i class="fab fa-js"></i>
+                    </div>
+                    <h3>JavaScript</h3>
+                    <p>Test your knowledge of JavaScript fundamentals, ES6+ features, and modern frameworks.</p>
+                    <div class="start-quiz">Start Quiz</div>
+                </div>
+                
+                <div class="category-card" data-quiz="python">
+                    <div class="category-icon">
+                        <i class="fab fa-python"></i>
+                    </div>
+                    <h3>Python</h3>
+                    <p>Challenge yourself with Python syntax, data structures, and popular libraries.</p>
+                    <div class="start-quiz">Start Quiz</div>
+                </div>
+                
+                <div class="category-card" data-quiz="sql">
+                    <div class="category-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>SQL</h3>
+                    <p>Prove your database query skills with our SQL challenges and optimization tests.</p>
+                    <div class="start-quiz">Start Quiz</div>
+                </div>
+                
+                <div class="category-card" data-quiz="java">
+                    <div class="category-icon">
+                        <i class="fab fa-java"></i>
+                    </div>
+                    <h3>Java</h3>
+                    <p>Test your Java knowledge including OOP concepts, collections, and multithreading.</p>
+                    <div class="start-quiz">Start Quiz</div>
+                </div>
+                
+                <div class="category-card" data-quiz="html-css">
+                    <div class="category-icon">
+                        <i class="fab fa-html5"></i>
+                    </div>
+                    <h3>HTML/CSS</h3>
+                    <p>Challenge your front-end skills with markup and styling questions.</p>
+                    <div class="start-quiz">Start Quiz</div>
+                </div>
+                
+                <div class="category-card" data-quiz="algorithms">
+                    <div class="category-icon">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <h3>Algorithms</h3>
+                    <p>Solve algorithmic problems and test your problem-solving skills.</p>
+                    <div class="start-quiz">Start Quiz</div>
+                </div>
+                
+                <div class="category-card" data-quiz="git">
+                    <div class="category-icon">
+                        <i class="fab fa-git-alt"></i>
+                    </div>
+                    <h3>Git</h3>
+                    <p>Test your version control knowledge with Git commands and workflows.</p>
+                    <div class="start-quiz">Start Quiz</div>
+                </div>
+                
+                <div class="category-card" data-quiz="linux">
+                    <div class="category-icon">
+                        <i class="fab fa-linux"></i>
+                    </div>
+                    <h3>Linux</h3>
+                    <p>Challenge your command line skills with Linux terminal questions.</p>
+                    <div class="start-quiz">Start Quiz</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Quiz Containers -->
+        <div class="quiz-container" id="quiz-container">
+            <div class="quiz-header">
+                <h2 class="quiz-title" id="quiz-title">JavaScript Quiz</h2>
+                <div class="quiz-progress" id="quiz-progress">Question 1 of 10</div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question-text" id="question-text">
+                    What is the correct way to declare a variable in JavaScript that can be reassigned?
+                </div>
+                
+                <div class="options-container" id="options-container">
+                    <!-- Options will be inserted here by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="quiz-footer">
+                <div class="score-container">
+                    Score: <span id="score">0</span>
+                </div>
+                <button class="next-btn" id="next-btn" disabled>Next Question</button>
+            </div>
+        </div>
+        
+        <!-- Results Container -->
+        <div class="results-container" id="results-container">
+            <h2 class="results-title">Quiz Completed!</h2>
+            <div class="final-score">
+                Your final score: <span id="final-score">0</span> out of <span id="total-questions">0</span>
+            </div>
+            <p id="results-message">Keep practicing to improve your skills!</p>
+            <button class="restart-btn" id="restart-btn">Take Another Quiz</button>
+            <a href="#" class="back-to-home" id="results-home-link">Back to Home</a>
+        </div>
+        
+        <!-- About Section -->
+        <section class="about-section" id="about-section">
+            <div class="about-content">
+                <h2>About CodingCourses</h2>
+                <p>CodingCourses is an interactive platform designed to help programmers test and improve their coding knowledge through practical quizzes. Unlike traditional learning platforms, we focus exclusively on hands-on testing to reinforce learning through active recall.</p>
+                
+                <h3>Our Mission</h3>
+                <p>We believe that the best way to master programming concepts is through continuous practice and self-assessment. Our platform provides a comprehensive collection of quizzes across various programming languages and technologies to help developers at all levels validate their knowledge and identify areas for improvement.</p>
+                
+                <h3>Key Features</h3>
+                <ul class="features-list">
+                    <li><strong>Extensive Question Bank</strong>: Hundreds of carefully crafted questions across multiple categories</li>
+                    <li><strong>Instant Feedback</strong>: Get immediate explanations and learn from your mistakes</li>
+                    <li><strong>Progress Tracking</strong>: Monitor your improvement over time</li>
+                    <li><strong>Real-world Scenarios</strong>: Questions designed to reflect practical coding challenges</li>
+                    <li><strong>Adaptive Difficulty</strong>: Questions that adjust based on your skill level</li>
+                    <li><strong>Community Contributions</strong>: Suggest new questions and help improve the platform</li>
+                </ul>
+                
+                <h3>How It Works</h3>
+                <p>Simply select a quiz category, answer the questions, and receive immediate feedback. Our system tracks your progress and provides detailed explanations for each answer to enhance your learning experience. Repeat quizzes to reinforce concepts and track your improvement over time.</p>
+                
+                <p>Whether you're preparing for a technical interview, learning a new language, or just want to test your knowledge, CodingCourses is here to help you on your programming journey.</p>
+                
+                <a href="#" class="back-to-home" id="about-home-link">Back to Home</a>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+            <a href="#">FAQ</a>
+        </div>
+        <p class="copyright">© 2023 CodingCourses. All rights reserved. 10101010</p>
+    </footer>
+
+    <script>
+        // Quiz Data
+        const quizData = {
+            javascript: {
+                title: "JavaScript Quiz",
+                questions: [
+                    {
+                        question: "What is the correct way to declare a variable in JavaScript that can be reassigned?",
+                        options: [
+                            "const x = 5;",
+                            "let x = 5;",
+                            "var x = 5;",
+                            "Both let and var"
+                        ],
+                        answer: 3,
+                        explanation: "Both 'let' and 'var' allow reassignment, but 'let' is block-scoped while 'var' is function-scoped."
+                    },
+                    {
+                        question: "What will be the output of: console.log(typeof null);?",
+                        options: [
+                            "null",
+                            "undefined",
+                            "object",
+                            "string"
+                        ],
+                        answer: 2,
+                        explanation: "This is a known quirk in JavaScript where typeof null returns 'object'."
+                    },
+                    {
+                        question: "Which method creates a new array with all sub-array elements concatenated?",
+                        options: [
+                            "concat()",
+                            "join()",
+                            "flat()",
+                            "merge()"
+                        ],
+                        answer: 2,
+                        explanation: "The flat() method creates a new array with all sub-array elements concatenated into it recursively up to the specified depth."
+                    },
+                    {
+                        question: "What does the 'this' keyword refer to in a standard function?",
+                        options: [
+                            "The function itself",
+                            "The global object",
+                            "The object that the function is a method of",
+                            "It depends on how the function is called"
+                        ],
+                        answer: 3,
+                        explanation: "In standard functions, 'this' is determined by how the function is called (execution context)."
+                    },
+                    {
+                        question: "Which of these is NOT a JavaScript framework or library?",
+                        options: [
+                            "React",
+                            "Vue",
+                            "Angular",
+                            "Django"
+                        ],
+                        answer: 3,
+                        explanation: "Django is a Python web framework, not a JavaScript library."
+                    },
+                    {
+                        question: "What is the purpose of the 'use strict' directive?",
+                        options: [
+                            "To enable strict mode which catches common coding mistakes",
+                            "To make JavaScript run faster",
+                            "To enable experimental features",
+                            "To force type checking"
+                        ],
+                        answer: 0,
+                        explanation: "Strict mode makes several changes to normal JavaScript semantics, eliminating some silent errors."
+                    },
+                    {
+                        question: "What does the spread operator (...) do in JavaScript?",
+                        options: [
+                            "Expands an iterable into individual elements",
+                            "Combines multiple arrays into one",
+                            "Creates a deep copy of an object",
+                            "All of the above"
+                        ],
+                        answer: 3,
+                        explanation: "The spread operator can be used for all these purposes depending on the context."
+                    },
+                    {
+                        question: "Which of these is NOT a valid way to create an object in JavaScript?",
+                        options: [
+                            "let obj = {};",
+                            "let obj = new Object();",
+                            "let obj = Object.create(null);",
+                            "let obj = new Object(null);"
+                        ],
+                        answer: 3,
+                        explanation: "While Object.create(null) is valid, new Object(null) is not a valid syntax."
+                    },
+                    {
+                        question: "What is a closure in JavaScript?",
+                        options: [
+                            "A function that has access to its outer function's scope",
+                            "A way to hide variables from the global scope",
+                            "A special kind of object",
+                            "A function that returns another function"
+                        ],
+                        answer: 0,
+                        explanation: "A closure gives a function access to all variables of its parent function, even after the parent has closed."
+                    },
+                    {
+                        question: "What does the Array.map() method do?",
+                        options: [
+                            "Creates a new array with the results of calling a function on every element",
+                            "Filters the array based on a condition",
+                            "Changes the original array by applying a function to each element",
+                            "Combines all array elements into a single value"
+                        ],
+                        answer: 0,
+                        explanation: "map() creates a new array populated with the results of calling a provided function on every element."
+                    }
+                ]
+            },
+            python: {
+                title: "Python Quiz",
+                questions: [
+                    {
+                        question: "Which of these is NOT a valid Python data type?",
+                        options: [
+                            "list",
+                            "tuple",
+                            "array",
+                            "dictionary"
+                        ],
+                        answer: 2,
+                        explanation: "Python has lists (which are similar to arrays) but doesn't have a primitive 'array' type."
+                    },
+                    {
+                        question: "What is the output of: print(3 * 'ab')?",
+                        options: [
+                            "ababab",
+                            "3ab",
+                            "ab3",
+                            "Error"
+                        ],
+                        answer: 0,
+                        explanation: "In Python, multiplying a string by an integer repeats the string."
+                    },
+                    {
+                        question: "Which keyword is used to define a function in Python?",
+                        options: [
+                            "func",
+                            "def",
+                            "function",
+                            "define"
+                        ],
+                        answer: 1,
+                        explanation: "Python uses the 'def' keyword to define functions."
+                    },
+                    {
+                        question: "What does the 'pass' statement do in Python?",
+                        options: [
+                            "Terminates the program",
+                            "Skips the current iteration in a loop",
+                            "Acts as a placeholder doing nothing",
+                            "Passes variables between functions"
+                        ],
+                        answer: 2,
+                        explanation: "'pass' is a null operation that does nothing when executed."
+                    },
+                    {
+                        question: "Which module is used for working with regular expressions?",
+                        options: [
+                            "regex",
+                            "re",
+                            "pyregex",
+                            "regexp"
+                        ],
+                        answer: 1,
+                        explanation: "The 're' module provides regular expression matching operations."
+                    },
+                    {
+                        question: "What is the correct way to create a virtual environment in Python?",
+                        options: [
+                            "python -m venv myenv",
+                            "python create virtualenv myenv",
+                            "python -m virtualenv myenv",
+                            "python new env myenv"
+                        ],
+                        answer: 0,
+                        explanation: "The standard way is 'python -m venv myenv' (or 'python3' on some systems)."
+                    },
+                    {
+                        question: "What does the 'with' statement do in Python?",
+                        options: [
+                            "Creates a context manager for resource handling",
+                            "Defines a code block with specific variables",
+                            "Is equivalent to a 'for' loop",
+                            "Checks if a condition is true"
+                        ],
+                        answer: 0,
+                        explanation: "'with' simplifies exception handling by encapsulating common preparation and cleanup tasks."
+                    },
+                    {
+                        question: "Which of these is NOT a Python web framework?",
+                        options: [
+                            "Django",
+                            "Flask",
+                            "Pyramid",
+                            "Jango"
+                        ],
+                        answer: 3,
+                        explanation: "The correct spelling is 'Django'."
+                    },
+                    {
+                        question: "What is the purpose of __init__.py files in Python?",
+                        options: [
+                            "To initialize the Python interpreter",
+                            "To mark a directory as a Python package",
+                            "To define initialization functions",
+                            "To configure Python settings"
+                        ],
+                        answer: 1,
+                        explanation: "__init__.py files are used to mark directories as Python package directories."
+                    },
+                    {
+                        question: "What does the 'yield' keyword do in Python?",
+                        options: [
+                            "Returns a value from a function",
+                            "Creates a generator function",
+                            "Pauses function execution and returns a value",
+                            "Both 2 and 3"
+                        ],
+                        answer: 3,
+                        explanation: "'yield' pauses function execution and returns a value, making the function a generator."
+                    }
+                ]
+            },
+            // More quiz categories can be added here
+            sql: {
+                title: "SQL Quiz",
+                questions: [
+                    {
+                        question: "Which SQL statement is used to extract data from a database?",
+                        options: [
+                            "GET",
+                            "EXTRACT",
+                            "SELECT",
+                            "QUERY"
+                        ],
+                        answer: 2,
+                        explanation: "The SELECT statement is used to select data from a database."
+                    },
+                    {
+                        question: "Which SQL clause is used to filter records?",
+                        options: [
+                            "FILTER",
+                            "WHERE",
+                            "HAVING",
+                            "Both WHERE and HAVING"
+                        ],
+                        answer: 3,
+                        explanation: "WHERE filters rows before grouping, HAVING filters after grouping."
+                    },
+                    {
+                        question: "What is the purpose of the GROUP BY clause?",
+                        options: [
+                            "To group rows that have the same values",
+                            "To sort the result set",
+                            "To filter groups",
+                            "To combine tables"
+                        ],
+                        answer: 0,
+                        explanation: "GROUP BY groups rows that have the same values into summary rows."
+                    },
+                    {
+                        question: "Which join returns all records when there is a match in either left or right table?",
+                        options: [
+                            "INNER JOIN",
+                            "LEFT JOIN",
+                            "RIGHT JOIN",
+                            "FULL OUTER JOIN"
+                        ],
+                        answer: 3,
+                        explanation: "FULL OUTER JOIN returns all records when there is a match in either table."
+                    },
+                    {
+                        question: "What does the ACID acronym stand for in database transactions?",
+                        options: [
+                            "Atomicity, Consistency, Isolation, Durability",
+                            "Accuracy, Consistency, Integrity, Durability",
+                            "Atomicity, Concurrency, Integrity, Durability",
+                            "Accuracy, Concurrency, Isolation, Durability"
+                        ],
+                        answer: 0,
+                        explanation: "ACID stands for Atomicity, Consistency, Isolation, Durability."
+                    }
+                ]
+            },
+            java: {
+                title: "Java Quiz",
+                questions: [
+                    {
+                        question: "Which of these is NOT a primitive data type in Java?",
+                        options: [
+                            "int",
+                            "boolean",
+                            "String",
+                            "double"
+                        ],
+                        answer: 2,
+                        explanation: "String is a class, not a primitive type."
+                    },
+                    {
+                        question: "What is the default value of a boolean variable in Java?",
+                        options: [
+                            "true",
+                            "false",
+                            "null",
+                            "0"
+                        ],
+                        answer: 1,
+                        explanation: "The default value is false."
+                    },
+                    {
+                        question: "Which keyword is used to inherit a class in Java?",
+                        options: [
+                            "extends",
+                            "implements",
+                            "inherits",
+                            "super"
+                        ],
+                        answer: 0,
+                        explanation: "The 'extends' keyword is used for class inheritance."
+                    }
+                ]
+            },
+            "html-css": {
+                title: "HTML/CSS Quiz",
+                questions: [
+                    {
+                        question: "Which HTML5 element is used for sidebar content?",
+                        options: [
+                            "<sidebar>",
+                            "<aside>",
+                            "<nav>",
+                            "<section>"
+                        ],
+                        answer: 1,
+                        explanation: "The <aside> element represents a section of a page with content connected to the main content."
+                    },
+                    {
+                        question: "Which CSS property is used to change the text color?",
+                        options: [
+                            "text-color",
+                            "font-color",
+                            "color",
+                            "text-style"
+                        ],
+                        answer: 2,
+                        explanation: "The 'color' property sets the color of text."
+                    }
+                ]
+            },
+            algorithms: {
+                title: "Algorithms Quiz",
+                questions: [
+                    {
+                        question: "What is the time complexity of binary search?",
+                        options: [
+                            "O(1)",
+                            "O(log n)",
+                            "O(n)",
+                            "O(n log n)"
+                        ],
+                        answer: 1,
+                        explanation: "Binary search has O(log n) time complexity."
+                    },
+                    {
+                        question: "Which sorting algorithm has the worst-case time complexity of O(n^2)?",
+                        options: [
+                            "Merge Sort",
+                            "Quick Sort",
+                            "Heap Sort",
+                            "Bubble Sort"
+                        ],
+                        answer: 3,
+                        explanation: "Bubble Sort has O(n^2) in the worst case."
+                    }
+                ]
+            },
+            git: {
+                title: "Git Quiz",
+                questions: [
+                    {
+                        question: "Which command creates a new Git repository?",
+                        options: [
+                            "git init",
+                            "git create",
+                            "git new",
+                            "git start"
+                        ],
+                        answer: 0,
+                        explanation: "'git init' initializes a new Git repository."
+                    },
+                    {
+                        question: "What does 'git pull' do?",
+                        options: [
+                            "Uploads changes to remote",
+                            "Downloads changes from remote",
+                            "Shows commit history",
+                            "Creates a new branch"
+                        ],
+                        answer: 1,
+                        explanation: "'git pull' fetches and merges changes from the remote repository."
+                    }
+                ]
+            },
+            linux: {
+                title: "Linux Quiz",
+                questions: [
+                    {
+                        question: "Which command lists directory contents?",
+                        options: [
+                            "dir",
+                            "list",
+                            "ls",
+                            "show"
+                        ],
+                        answer: 2,
+                        explanation: "'ls' lists directory contents."
+                    },
+                    {
+                        question: "What does 'chmod 755' do?",
+                        options: [
+                            "Gives read/write/execute to owner, read/execute to group and others",
+                            "Gives all permissions to everyone",
+                            "Gives read/write to owner, read to group and others",
+                            "Gives execute only to owner"
+                        ],
+                        answer: 0,
+                        explanation: "755 means rwx for owner, rx for group and others."
+                    }
+                ]
+            }
+        };
+
+        // DOM Elements
+        const homeSection = document.getElementById('home-section');
+        const quizzesSection = document.getElementById('quizzes-section');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const aboutSection = document.getElementById('about-section');
+        
+        const quizTitle = document.getElementById('quiz-title');
+        const quizProgress = document.getElementById('quiz-progress');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const scoreElement = document.getElementById('score');
+        const nextBtn = document.getElementById('next-btn');
+        
+        const finalScoreElement = document.getElementById('final-score');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const resultsMessage = document.getElementById('results-message');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        // Navigation Elements
+        const homeLink = document.getElementById('home-link');
+        const navHome = document.getElementById('nav-home');
+        const navQuizzes = document.getElementById('nav-quizzes');
+        const navAbout = document.getElementById('nav-about');
+        const startQuizzingBtn = document.getElementById('start-quizzing');
+        const resultsHomeLink = document.getElementById('results-home-link');
+        const aboutHomeLink = document.getElementById('about-home-link');
+        
+        // Quiz State
+        let currentQuiz = null;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        
+        // Initialize the app
+        function init() {
+            setupEventListeners();
+            showHome();
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Navigation
+            homeLink.addEventListener('click', showHome);
+            navHome.addEventListener('click', showHome);
+            navQuizzes.addEventListener('click', showQuizzes);
+            navAbout.addEventListener('click', showAbout);
+            startQuizzingBtn.addEventListener('click', showQuizzes);
+            resultsHomeLink.addEventListener('click', showHome);
+            aboutHomeLink.addEventListener('click', showHome);
+            
+            // Quiz functionality
+            nextBtn.addEventListener('click', goToNextQuestion);
+            restartBtn.addEventListener('click', restartQuiz);
+            
+            // Category cards
+            const categoryCards = document.querySelectorAll('.category-card');
+            categoryCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const quizName = card.getAttribute('data-quiz');
+                    startQuiz(quizName);
+                });
+            });
+        }
+        
+        // Show home section
+        function showHome() {
+            hideAllSections();
+            homeSection.style.display = 'block';
+            quizzesSection.style.display = 'block';
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        
+        // Show quizzes section
+        function showQuizzes() {
+            hideAllSections();
+            quizzesSection.style.display = 'block';
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        
+        // Show about section
+        function showAbout() {
+            hideAllSections();
+            aboutSection.style.display = 'block';
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        
+        // Hide all sections
+        function hideAllSections() {
+            homeSection.style.display = 'none';
+            quizzesSection.style.display = 'none';
+            quizContainer.style.display = 'none';
+            resultsContainer.style.display = 'none';
+            aboutSection.style.display = 'none';
+        }
+        
+        // Start a quiz
+        function startQuiz(quizName) {
+            if (!quizData[quizName]) return;
+            
+            currentQuiz = quizName;
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedOption = null;
+            
+            quizTitle.textContent = quizData[quizName].title;
+            scoreElement.textContent = score;
+            
+            hideAllSections();
+            quizContainer.style.display = 'block';
+            
+            loadQuestion();
+        }
+        
+        // Load the current question
+        function loadQuestion() {
+            const quiz = quizData[currentQuiz];
+            const question = quiz.questions[currentQuestionIndex];
+            
+            quizProgress.textContent = `Question ${currentQuestionIndex + 1} of ${quiz.questions.length}`;
+            questionText.textContent = question.question;
+            
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+            
+            // Add new options
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Reset next button
+            nextBtn.disabled = true;
+        }
+        
+        // Select an option
+        function selectOption(optionIndex) {
+            // Deselect previous option if any
+            if (selectedOption !== null) {
+                const prevOption = optionsContainer.children[selectedOption];
+                prevOption.classList.remove('selected');
+            }
+            
+            // Select new option
+            selectedOption = optionIndex;
+            const option = optionsContainer.children[optionIndex];
+            option.classList.add('selected');
+            
+            // Enable next button
+            nextBtn.disabled = false;
+        }
+        
+        // Go to next question
+        function goToNextQuestion() {
+            const quiz = quizData[currentQuiz];
+            const question = quiz.questions[currentQuestionIndex];
+            
+            // Check if answer is correct
+            const isCorrect = selectedOption === question.answer;
+            
+            // Highlight correct and incorrect answers
+            optionsContainer.children[selectedOption].classList.add(isCorrect ? 'correct' : 'incorrect');
+            optionsContainer.children[question.answer].classList.add('correct');
+            
+            // Update score if correct
+            if (isCorrect) {
+                score++;
+                scoreElement.textContent = score;
+            }
+            
+            // Disable all options
+            const options = optionsContainer.querySelectorAll('.option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            // Change next button text if last question
+            if (currentQuestionIndex === quiz.questions.length - 1) {
+                nextBtn.textContent = 'See Results';
+                nextBtn.addEventListener('click', showResults, { once: true });
+            } else {
+                nextBtn.textContent = 'Next Question';
+                nextBtn.addEventListener('click', () => {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                }, { once: true });
+            }
+            
+            // Re-enable next button
+            nextBtn.disabled = false;
+        }
+        
+        // Show results
+        function showResults() {
+            const quiz = quizData[currentQuiz];
+            
+            hideAllSections();
+            resultsContainer.style.display = 'block';
+            
+            finalScoreElement.textContent = score;
+            totalQuestionsElement.textContent = quiz.questions.length;
+            
+            // Set results message based on score
+            const percentage = (score / quiz.questions.length) * 100;
+            if (percentage >= 80) {
+                resultsMessage.textContent = "Excellent work! You've mastered this topic!";
+            } else if (percentage >= 60) {
+                resultsMessage.textContent = "Good job! You're on the right track!";
+            } else if (percentage >= 40) {
+                resultsMessage.textContent = "Not bad! Keep practicing to improve!";
+            } else {
+                resultsMessage.textContent = "Keep learning! Review the material and try again!";
+            }
+        }
+        
+        // Restart quiz
+        function restartQuiz() {
+            startQuiz(currentQuiz);
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
